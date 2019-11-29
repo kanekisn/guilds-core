@@ -36,17 +36,17 @@ bool      bPlugin_Loaded,
 #include "guilds/API.sp"
 #include "guilds/Menus.sp"
 
-public void OnConfigsExecuted()
-{
-	Create_Trie();
-	KV_Modules();
-	KV_Core();
-	Database.Connect(Database_Callback, "guilds_core");
-}
-
 public void OnPluginStart()
 {
+	Create_Trie();
+	Database.Connect(Database_Callback, "guilds_core");
 	ServerID_Condition();
+}
+
+public void OnConfigsExecuted()
+{
+	KV_Modules();
+	KV_Core();
 	OnPluginLoaded();
 }
 
