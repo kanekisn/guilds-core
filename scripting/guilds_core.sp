@@ -15,9 +15,7 @@ int 	  g_iServer_ID;
 Handle 	  g_hGFwd_OnClientLoaded,
 		  g_hGFwd_OnPluginLoaded;
 
-ArrayList g_hArray_main,
-		  g_hArray_myguild,
-		  g_hArray_settings;
+StringMap g_hTrie[3];
 
 Database  g_hDatabase = null;
 
@@ -40,21 +38,16 @@ bool      bPlugin_Loaded,
 
 public void OnConfigsExecuted()
 {
+	Create_Trie();
 	KV_Modules();
 	KV_Core();
+	Database.Connect(Database_Callback, "guilds_core");
 }
 
 public void OnPluginStart()
 {
-	Database.Connect(Database_Callback, "guilds_core");
-	Create_Arrays();
-	CreateTimer(5.0, Timer_Delay, _, TIMER_FLAG_NO_MAPCHANGE);
-}
-
-public Action Timer_Delay(Handle hTimer)
-{
+	ServerID_Condition();
 	OnPluginLoaded();
-	return Plugin_Stop;
 }
 
 public void OnClientPostAdminCheck(int iClient)
@@ -67,7 +60,7 @@ public void OnClientPostAdminCheck(int iClient)
 
 public void OnMapEnd()
 {
-	Clean_Arrays();
+	Clean_Trie();
 }
 
 public void OnClientDisconnect(int iClient)

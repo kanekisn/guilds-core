@@ -315,9 +315,9 @@ public int Native_IsUniqueItem(Handle hPlugin, int iNumParams)
 	GetNativeString(1, szItem, sizeof(szItem));
 	int iCategoryID = GetNativeCell(2);
 	switch(iCategoryID){
-		case 0:{Native_IsUniqueItemGen(g_hArray_main, szItem);}
-		case 1:{Native_IsUniqueItemGen(g_hArray_myguild, szItem);}
-		case 2:{Native_IsUniqueItemGen(g_hArray_settings, szItem);}
+		case 0:{Native_IsUniqueItemGen(g_hTrie[0], szItem);}
+		case 1:{Native_IsUniqueItemGen(g_hTrie[1], szItem);}
+		case 2:{Native_IsUniqueItemGen(g_hTrie[2], szItem);}
 		default:{
 			ThrowNativeError(SP_ERROR_NATIVE, "Несуществующая категория!");
 			return false;
@@ -326,47 +326,16 @@ public int Native_IsUniqueItem(Handle hPlugin, int iNumParams)
 	return 0;
 }
 
-int Native_IsUniqueItemGen(ArrayList hArray, const char[] szItem){
-	if(hArray.FindString(szItem) != -1)
-	{
-		int index = hArray.FindString(szItem);
-		if(hArray.Get(++index)) return false; 
-		else return true;
-	}
-	else{
-		return true;
-	}
-}
-
 public int Native_UnRegisterItem(Handle hPlugin, int iNumParams)
 {
 	char szItem[32];
 	GetNativeString(1, szItem, sizeof(szItem));
 	int iCategoryID = GetNativeCell(2);
 	switch(iCategoryID){
-		case 0:{Native_UnRegisterItemGen(g_hArray_main, szItem);}
-		case 1:{Native_UnRegisterItemGen(g_hArray_myguild, szItem);}
-		case 2:{Native_UnRegisterItemGen(g_hArray_settings, szItem);}
+		case 0:{Native_UnRegisterItemGen(g_hTrie[0], szItem);}
+		case 1:{Native_UnRegisterItemGen(g_hTrie[1], szItem);}
+		case 2:{Native_UnRegisterItemGen(g_hTrie[2], szItem);}
 		default:{ThrowNativeError(SP_ERROR_NATIVE, "Несуществующая категория!");}
-	}
-}
-
-void Native_UnRegisterItemGen(ArrayList hArray, const char[] szItem){
-	if(hArray.FindString(szItem) != 1)
-	{
-		int index = hArray.FindString(szItem);
-		hArray.Erase(index);
-		++index;
-		if(hArray.Get(index)){
-			CloseHandle(view_as<Handle>(hArray.Get(index)));
-			hArray.Erase(index);
-		}
-		else{
-			hArray.Erase(index);
-		}
-	}
-	else{
-		ThrowNativeError(SP_ERROR_NATIVE, "Не удалось найти item!");
 	}
 }
 
@@ -383,22 +352,12 @@ public int Native_RegisterItem(Handle hPlugin, int iNumParams)
 	hPack.WriteCell(iData);
 	hPack.WriteFunction(fnCallback);
 
+	LogError("Native is working!");
+
 	switch(iCategoryID){
-		case 0:{Native_RegisterItemGen(g_hArray_main, szItem, hPack);}
-		case 1:{Native_RegisterItemGen(g_hArray_myguild, szItem, hPack);}
-		case 2:{Native_RegisterItemGen(g_hArray_settings, szItem, hPack);}
+		case 0:{Native_RegisterItemGen(g_hTrie[0], szItem, hPack);}
+		case 1:{Native_RegisterItemGen(g_hTrie[1], szItem, hPack);}
+		case 2:{Native_RegisterItemGen(g_hTrie[2], szItem, hPack);}
 		default:{ThrowNativeError(SP_ERROR_NATIVE, "Несуществующая категория!");}
 	}
 }
-
-void Native_RegisterItemGen(ArrayList hArray, const char[] szItem, DataPack hPack){
-	if(hArray.FindString(szItem) != -1){
-		int index = hArray.FindString(szItem);
-		for(int i = 0; i < 10; ++i) PrintToServer("%i", index);
-		hArray.Set(++index, hPack);
-		for(int i = 0; i < 10; ++i) PrintToServer("%i", index);
-	}
-	else ThrowNativeError(SP_ERROR_NATIVE, "Ключ -> %s не найден в конфиге!", szItem);
-}
-
-

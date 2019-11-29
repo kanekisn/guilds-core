@@ -18,7 +18,6 @@ void KV_Core(){
 	g_iServer_ID = kvc.GetNum("server_id");
 
 	CloseHandle(kvc);
-	ServerID_Condition();
 }
 
 void KV_Modules(){
@@ -32,14 +31,14 @@ void KV_Modules(){
 		LogError("(%s) is not found", sPath);
 	}
 
-	CategoryGenerate("Menu_Main", kv, g_hArray_main);
-	CategoryGenerate("Menu_Guild", kv, g_hArray_myguild);
-	CategoryGenerate("Menu_Settings", kv, g_hArray_settings);
+	CategoryGenerate("Menu_Main", kv, g_hTrie[0]);
+	CategoryGenerate("Menu_Guild", kv, g_hTrie[1]);
+	CategoryGenerate("Menu_Settings", kv, g_hTrie[2]);
 
 	CloseHandle(kv);
 }
 
-void CategoryGenerate(const char[] szKv, KeyValues hKv, ArrayList hArray){
+void CategoryGenerate(const char[] szKv, KeyValues hKv, StringMap hTrie){
 	hKv.Rewind();
 	if(hKv.JumpToKey(szKv))
 	{
@@ -48,10 +47,7 @@ void CategoryGenerate(const char[] szKv, KeyValues hKv, ArrayList hArray){
 		{
 			char szItem[32];
 			hKv.GetString("item", szItem, sizeof(szItem));
-			if(szItem[0]){
-				hArray.PushString(szItem);
-				hArray.Push(0);
-			}
+			if(szItem[0]) hTrie.SetValue(szItem, 0);
 		}
 		while(hKv.GotoNextKey());
 	}

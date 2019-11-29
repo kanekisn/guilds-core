@@ -6,18 +6,7 @@ void MainMenu(int iClient)
 	if(ident[iClient].permissions == 3) hMenu.AddItem("a", "List of guilds");
 	else hMenu.AddItem("b", "My guild");
 	
-	int i, iSize;
-	char szBuffer[64], szf[16];
-	iSize = g_hArray_main.Length;
-
-	for(i = 0; i < iSize; ++i)
-	{
-		if(g_hArray_main.GetString(i, szBuffer, sizeof(szBuffer)))
-		{
-			IntToString(++i, szf, sizeof(szf));
-			hMenu.AddItem(szf, szBuffer);
-		}
-	}
+	Menu_Generate(g_hTrie[0], hMenu);
 
 	bIsExit[iClient] = false;
 
@@ -32,7 +21,7 @@ public int CMD_MenuHandler(Menu hMenu, MenuAction action, int iClient, int iItem
 		{
 			if(!IsValidClient(iClient)) return;
 
-			char szInfo[16];
+			char szInfo[32];
 			hMenu.GetItem(iItem, szInfo, sizeof(szInfo));
 			if(szInfo[0] == 'a'){
 				LoadGuildList(iClient);
@@ -41,7 +30,9 @@ public int CMD_MenuHandler(Menu hMenu, MenuAction action, int iClient, int iItem
 				MyGuild(iClient);
 			}
 			else{
-				DataPack hPack = view_as<DataPack>(g_hArray_main.Get(StringToInt(szInfo)));
+				int iValue;
+				g_hTrie[0].GetValue(szInfo, iValue);
+				DataPack hPack = view_as<DataPack>(iValue);
 				if(!hPack){
 					PrintToChat(iClient, "item не зарегестрирован!");
 					return;
@@ -367,18 +358,7 @@ DB_Callback(bdShowMyGuild)
 		hMenu.AddItem("2", "Players");
 		hMenu.AddItem("3", "List of Guilds");
 
-		int i, iSize;
-		char szBuffer[64], szf[16];
-		iSize = g_hArray_myguild.Length;
-
-		for(i = 0; i < iSize; ++i)
-		{
-			if(g_hArray_myguild.GetString(i, szBuffer, sizeof(szBuffer)))
-			{
-				IntToString(++i, szf, sizeof(szf));
-				hMenu.AddItem(szf, szBuffer);
-			}
-		}
+		Menu_Generate(g_hTrie[1], hMenu);
 
 		hMenu.AddItem("4", "Leave from guild");
 
@@ -409,7 +389,9 @@ public int bdShowMyGuild_Handler(Menu hMenu, MenuAction action, int iClient, int
 					}
 				case'4':{LeaveGuild(iClient);}
 				default:{
-					DataPack hPack = view_as<DataPack>(g_hArray_myguild.Get(StringToInt(szInfo)));
+					int iValue;
+					g_hTrie[1].GetValue(szInfo, iValue);
+					DataPack hPack = view_as<DataPack>(iValue);
 					if(!hPack){
 						PrintToChat(iClient, "item не зарегестрирован!");
 						return;
@@ -450,18 +432,7 @@ void Settings(int iClient)
 	hMenu.SetTitle("Settings of Guild:\n \n");
 	!ident[iClient].permissions ? hMenu.AddItem("a", "Delete this guild") : hMenu.AddItem("a", "Delete this guild", ITEMDRAW_DISABLED);
 
-	int i, iSize;
-	char szBuffer[64], szf[16];
-	iSize = g_hArray_settings.Length;
-
-	for(i = 0; i < iSize; ++i)
-	{
-		if(g_hArray_settings.GetString(i, szBuffer, sizeof(szBuffer)))
-		{
-			IntToString(++i, szf, sizeof(szf));
-			hMenu.AddItem(szf, szBuffer);
-		}
-	}
+	Menu_Generate(g_hTrie[1], hMenu);
 
 	hMenu.ExitBackButton = true;
 	hMenu.ExitButton = true;
@@ -484,7 +455,9 @@ public int Settings_Handler(Menu hMenu, MenuAction action, int iClient, int iIte
 			}
 			else
 			{
-				DataPack hPack = view_as<DataPack>(g_hArray_settings.Get(StringToInt(szInfo)));
+				int iValue;
+				g_hTrie[2].GetValue(szInfo, iValue);
+				DataPack hPack = view_as<DataPack>(iValue);
 				if(!hPack){
 					PrintToChat(iClient, "item не зарегестрирован!");
 					return;
